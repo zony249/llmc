@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
 
 
-    model = AutoClass.from_pretrained(args.model_name_or_path, torch_dtype=torch.bfloat16)
+    model = AutoClass.from_pretrained(args.model_name_or_path, torch_dtype=torch.float32)
                                     #   quantization_config=quant_config)
     tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
 

@@ -2,7 +2,7 @@ base:
     seed: &seed 42
 model:
     type: Llama
-    path: meta-llama/Meta-Llama-3-8B
+    path: meta-llama/Meta-Llama-3-8B-fp32
     tokenizer_mode: slow
     torch_dtype: auto
 calib:
@@ -27,12 +27,12 @@ eval:
 quant:
     method: Awq
     weight:
-        bit: 8
+        bit: 4
         symmetric: True
         granularity: per_channel
         group_size: -1
     act:
-        bit: 8
+        bit: 4
         symmetric: True
         granularity: per_token
     special:

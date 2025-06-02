@@ -17,14 +17,14 @@ import lm_eval.__main__ as lm_eval
 import torch.nn as nn
 from easydict import EasyDict
 
-from llmc.compression.quantization import FakeQuantLinear, Quantizer
+from llmc.compression.quantization import FakeQuantLinear#, Quantizer
 from llmc.compression.quantization.base_blockwise_quantization import \
     BaseBlockwiseQuantization
-from llmc.compression.quantization.module_utils import LlmcRMSNorm
-from llmc.data import BaseDataset, BaseTokenizer
-from llmc.eval import PerplexityEval
+# from llmc.compression.quantization.module_utils import LlmcRMSNorm
+# from llmc.data import BaseDataset, BaseTokenizer
+# from llmc.eval import PerplexityEval
 from llmc.models import *
-from llmc.utils import check_config, mkdirs, seed_all
+# from llmc.utils import check_config, mkdirs, seed_all
 from llmc.utils.registry_factory import ALGO_REGISTRY, MODEL_REGISTRY
 
 if __name__ == '__main__':
