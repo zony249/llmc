@@ -37,27 +37,28 @@ if __name__ == "__main__":
         
     
     # This does not work right now, get rid of it
-    if args.quant_config is not None: 
-        with open(args.quant_config, "r") as f: 
-            data = yaml.safe_load(f)
-            method = data["quant"]["method"]
+    # if args.quant_config is not None: 
+    #     with open(args.quant_config, "r") as f: 
+    #         data = yaml.safe_load(f)
+    #         method = data["quant"]["method"]
 
-        if method == "Awq":  
-            weight = data["quant"]["weight"]
-            quant_config = AwqConfig(bits=weight["bit"], 
-                                     group_size=weight["group_size"])
-        else: 
-            raise NotImplementedError
-    else: 
-        quant_config = None
-
-
+    #     if method == "Awq":  
+    #         weight = data["quant"]["weight"]
+    #         quant_config = AwqConfig(bits=weight["bit"], 
+    #                                  group_size=weight["group_size"])
+    #     else: 
+    #         raise NotImplementedError
+    # else: 
+    #     quant_config = None
 
 
 
-    model = AutoClass.from_pretrained(args.model_name_or_path, torch_dtype=torch.float32)
+
+
+    model = AutoClass.from_pretrained(args.model_name_or_path, torch_dtype=torch.bfloat16)
                                     #   quantization_config=quant_config)
     tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
+    config = AutoConfig.from_pretrained(args.model_name_or_path)
 
 
     save_dest = os.path.join(args.save_to, args.model_name_or_path) if args.save_to is not None else args.model_name_or_path

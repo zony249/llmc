@@ -2,7 +2,7 @@ base:
     seed: &seed 42
 model:
     type: Llama
-    path: meta-llama/Meta-Llama-3-8B-fp32
+    path: /home/zonglin/large-file-storage/meta-llama/Meta-Llama-3-8B
     tokenizer_mode: slow
     torch_dtype: auto
 calib:
