@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export CUDA_VISIBLE_DEVICES=2,3
+export CUDA_VISIBLE_DEVICES=3
 
 llmc=/home/zonglin/Documents/llmc
 export PYTHONPATH=$llmc:$PYTHONPATH
@@ -8,7 +8,7 @@ export PYTHONPATH=$llmc:$PYTHONPATH
 task_name=awq_w4a16
 config=${llmc}/configs/custom/awq_w4a16.yml
 nnodes=1
-nproc_per_node=2
+nproc_per_node=1
 
 
 find_unused_port() {
