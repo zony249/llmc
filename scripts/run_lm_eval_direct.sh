@@ -29,11 +29,12 @@ accelerate launch \
     --num_machines=$SLURM_NNODES \
     --machine_rank=$SLURM_NODEID \
     --num_processes=8 \
-    --main_process_ip="$HEAD_NODE" \
+    --main_process_ip=$HEAD_NODE \
     --main_process_port=$HEAD_NODE_PORT \
+    --config_file accl-config/2node-fsdp.yaml \
     -m lm_eval \
         --model hf \
-        --model_args pretrained="/home/zonglin/large-file-storage/meta-llama/meta-Llama-3-70B,parallelize=True,max_length=2048,device_map=cuda" \
+        --model_args pretrained="meta-llama/meta-Llama-3-70B,parallelize=True,max_length=2048,device_map=cuda" \
         --tasks wikitext \
         --batch_size 1 \
         --output_path runs/lm_eval \

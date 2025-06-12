@@ -41,4 +41,4 @@ save:
     save_vllm: True
     save_trans: True
     save_fake: True
-    save_path: runs/vllm
+    save_path: runs/llm2-7b
