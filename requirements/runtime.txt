@@ -5,6 +5,7 @@ pillow
 loguru
 transformers>=4.45.2
 lmms-eval
+lm-eval==0.3.0
 huggingface-hub
 sentencepiece
 protobuf

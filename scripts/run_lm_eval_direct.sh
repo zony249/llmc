@@ -2,7 +2,7 @@
 #SBATCH --nodes=2
 #SBATCH --cpus-per-task=6
 #SBATCH --gpus-per-node=a100:4
-#SBATCH --mem=510000M
+#SBATCH --mem=64000M
 #SBATCH --time=1-00:00
 #SBATCH --account=rrg-lilimou
 #SBATCH --output=slurm-logs/%j-llama-3-70B-distributed.out

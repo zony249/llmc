@@ -70,6 +70,7 @@ def get_eval_list(model, config):
                                 f'Unsupported eval type: {config_tmp.eval.type}'
                             )
                         eval_list.append((eval_class, config_for_eval))
+    print(eval_list)
     return eval_list
 
 
