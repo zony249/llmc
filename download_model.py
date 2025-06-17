@@ -19,6 +19,7 @@ if __name__ == "__main__":
     parser = ArgumentParser(description="args") 
     parser.add_argument("model_name_or_path", type=str, help="huggingface id") 
     parser.add_argument("--type", type=str, default="causal", choices=[None, "causal", "seq2seq"], help="type of model")
+    parser.add_argument("--dtype", type=str, default="float16", choices=["float16", "bfloat16"])
     parser.add_argument("--save_to", type=str, default=None, help="Directory to save the model to.")
     parser.add_argument("--quant_config", type=str, default=None, help="path to quantization YAML file (LLMC)")
 
@@ -53,9 +54,9 @@ if __name__ == "__main__":
 
 
 
+    dtype = torch.bfloat16 if args.dtype == "bfloat16" else torch.float16
 
-
-    model = AutoClass.from_pretrained(args.model_name_or_path, torch_dtype=torch.bfloat16)
+    model = AutoClass.from_pretrained(args.model_name_or_path, torch_dtype=dtype)
                                     #   quantization_config=quant_config)
     tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
     config = AutoConfig.from_pretrained(args.model_name_or_path)
