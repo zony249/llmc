@@ -21,6 +21,7 @@ from .phi import Phi
 from .phi3 import Phi3
 from .qwen import Qwen
 from .qwen2 import Qwen2
+from .qwen3 import Qwen3
 from .qwen2audio import Qwen2Audio
 from .qwen2moe import Qwen2Moe
 from .qwen2vl import Qwen2VL

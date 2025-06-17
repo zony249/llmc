@@ -56,7 +56,10 @@ def mkdirs(path):
     if not os.path.exists(path):
         os.makedirs(path)
     else:
-        raise Exception(f'{path} existed before. Need check.')
+        # raise Exception(f'{path} existed before. Need check.')
+        shutil.rmtree(path) 
+        os.makedirs(path)
+
 
 
 def copy_files(source_dir, target_dir, substring):

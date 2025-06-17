@@ -180,7 +180,7 @@ if __name__ == '__main__':
     llmc_start_time = time.time()
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, required=True)
-    parser.add_argument('--task_id', type=str, required=True)
+    parser.add_argument('--task_id', type=str, required=False)
     args = parser.parse_args()
 
     with open(args.config, 'r') as file:

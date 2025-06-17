@@ -4,9 +4,10 @@ import torch
 import argparse
 import os
 import json
+import logging
 
 
-from vllm import LLM, SamplingParams
+# from vllm import LLM, SamplingParams
 from accelerate import (
     infer_auto_device_map,
     dispatch_model,
@@ -16,6 +17,11 @@ from lm_eval_adaptor import LMEvalAdaptor
 from datasets import load_dataset
 from torch import nn
 import tqdm
+from lm_eval.api.model import TemplateLM
+from lm_eval.models.huggingface import HFLM
+from lm_eval.utils import make_table
+
+logger = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model_path", type=str, help="path of the hf model")
@@ -41,6 +47,9 @@ parser.add_argument(
     action="store_true",
     help="automatically set parallel and batch_size",
 )
+# parser.add_argument("--data_dir", type=str, default=None)
+
+
 args = parser.parse_args()
 
 max_memory = [v.split(":") for v in (args.max_memory or [])]
@@ -77,19 +86,19 @@ def build_model_and_enc(model_path, dtype):
             model, max_memory if len(max_memory) > 0 else None
         )
     }
-    device_map = infer_auto_device_map(
-        model,
-        # TODO: can we remove this?
-        no_split_module_classes=[
-            "OPTDecoderLayer",
-            "LlamaDecoderLayer",
-            "BloomBlock",
-            "MPTBlock",
-            "DecoderLayer",
-        ],
-        **kwargs,
-    )
-    model = dispatch_model(model, device_map=device_map)
+    # device_map = infer_auto_device_map(
+    #     model,
+    #     # TODO: can we remove this?
+    #     no_split_module_classes=[
+    #         "OPTDecoderLayer",
+    #         "LlamaDecoderLayer",
+    #         "BloomBlock",
+    #         "MPTBlock",
+    #         "DecoderLayer",
+    #     ],
+    #     **kwargs,
+    # )
+    # model = dispatch_model(model, device_map=device_map)
 
     return model, enc
 
@@ -113,22 +122,39 @@ def main():
     if args.tasks is not None:
 
         task_names = args.tasks.split(",")
-        non_special_tasks = []
+        tasks = []
+        print(f"tasks: {task_names}")
         # https://github.com/IST-DASLab/gptq/blob/2d65066eeb06a5c9ff5184d8cebdf33662c67faf/llama.py#L206
         for task in task_names:
-            if task in ["wikitext", "c4"]:
+            if task in ["wikitext"]:
                 if task == "wikitext":
                     testenc = load_dataset("wikitext", "wikitext-2-raw-v1", split="test")
                     testenc = enc("\n\n".join(testenc["text"]), return_tensors="pt")
-                elif task == "c4": 
-                    testenc = load_dataset(
-                                'allenai/c4',
-                                data_files={
-                                    'validation': 'en/c4-validation.00000-of-00008.json.gz'
-                                },
-                                split='validation',
-                            )
-                    testenc = enc(" ".join(testenc[:1100]["text"]), return_tensors="pt")
+
+                    from wikitext import WikiText
+                    try: 
+                        task = WikiText(task)
+                    except Exception as e:
+                        print("DOWNLOAD EXCEPTION:", e)
+                        task = WikiText(task, download_if_needed=False)
+                else: 
+                    raise NotImplementedError(f"{task} has not been implemented for exceptional loading")
+
+
+                         
+
+                tasks.append(task)
+
+
+                # elif task == "c4": 
+                #     testenc = load_dataset(
+                #                 'allenai/c4',
+                #                 data_files={
+                #                     'validation': 'en/c4-validation.00000-of-00008.json.gz'
+                #                 },
+                #                 split='validation',
+                #             )
+                #     testenc = enc(" ".join(testenc[:1100]["text"]), return_tensors="pt")
 
 
                 # print("ENC:", enc)
@@ -165,21 +191,35 @@ def main():
                     with open(args.output_path, "w") as f:
                         json.dump(results, f, indent=2)
             else:
-                non_special_tasks.append(task)  
+                tasks.append(task)  
 
 
-        if len(non_special_tasks) > 0 :
 
-            lm_eval_model = LMEvalAdaptor(args.model_path, model, enc, args.batch_size)
-            results = evaluator.simple_evaluate(
-                model=lm_eval_model,
-                tasks=non_special_tasks,
-                batch_size=args.batch_size,
-                no_cache=True,
-                num_fewshot=args.num_fewshot,
-            )
+        # lm_eval_model = LMEvalAdaptor(args.model_path, model, enc, args.batch_size)
+        # lm_eval_model = HFLM(model, 
+        #                      tokenizer=enc, 
+        #                      max_length=2048, 
+        #                      batch_size=args.batch_size, 
+        #                      add_bos_token=False, 
+        #                      prefix_token_id=None, 
+        #                      parallelize=False)
+        # lm_eval_model = TemplateLM()
+        model_kwargs = {
+            "pretrained": args.model_path, 
+            "backend": "causal", 
+            "dtype": torch.bfloat16 if args.dtype == "bfloat16" else torch.float16, 
+            "batch_size": args.batch_size, 
+            "add_bos_token": True,
+            "prefix_token_id": 2 
+        }
 
-            print(evaluator.make_table(results))
+        results = evaluator.simple_evaluate(
+            model="hf", 
+            model_args=model_kwargs, 
+            tasks=task_names,
+        )
+
+        print(make_table(results))
 
     if args.output_path is not None:
         os.makedirs(os.path.dirname(args.output_path), exist_ok=True)
