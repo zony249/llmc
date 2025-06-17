@@ -1,14 +1,14 @@
 #!/bin/bash
 
-export CUDA_VISIBLE_DEVICES=3
+export CUDA_VISIBLE_DEVICES=4,5
 
 llmc=/home/zonglin/Documents/llmc
 export PYTHONPATH=$llmc:$PYTHONPATH
 
-task_name=awq_w4a16
-config=${llmc}/configs/custom/awq_w4a16.yml
+# task_name=
+config=${llmc}/configs/custom/rtn_w4_opt-6.7b.yml
 nnodes=1
-nproc_per_node=1
+nproc_per_node=$(echo $CUDA_VISIBLE_DEVICES | tr ',' '\n' | wc -l)
 
 
 find_unused_port() {
@@ -27,7 +27,7 @@ MASTER_ADDR=127.0.0.1
 MASTER_PORT=$UNUSED_PORT
 task_id=$UNUSED_PORT
 
-nohup \
+# nohup \
 torchrun \
 --nnodes $nnodes \
 --nproc_per_node $nproc_per_node \
@@ -35,7 +35,7 @@ torchrun \
 --rdzv_backend c10d \
 --rdzv_endpoint $MASTER_ADDR:$MASTER_PORT \
 ${llmc}/llmc/__main__.py --config $config --task_id $task_id \
-> ${task_name}.log 2>&1 &
+# > ${task_name}.log 2>&1 &
 
 sleep 2
 ps aux | grep '__main__.py' | grep $task_id | awk '{print $2}' > ${task_name}.pid
